@@ -1,0 +1,3 @@
+class ErrorMsg {
+
+} // ErrorMsg
