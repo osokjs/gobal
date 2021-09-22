@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gobal/view/add_favorites.dart';
 
 import 'package:gobal/view/my_homepage.dart';
 import 'package:gobal/view/my_favorite.dart';
-import 'package:gobal/view/current_position.dart';
 import 'package:gobal/view/my_config.dart';
 
 
@@ -23,8 +23,8 @@ class MyApp extends StatelessWidget {
         getPages: [
         GetPage(name: '/', page: () => MyHomePage()),
     GetPage(name: '/favorite', page: () => MyFavorite()),
-    GetPage(name: '/current_position', page: () => CurrentPosition()),
-    GetPage(name: '/common', page: () => MyConfig()),
+    GetPage(name: '/add_favorite', page: () => AddFavorite()),
+    GetPage(name: '/config', page: () => MyConfig()),
       ],
     );
   }

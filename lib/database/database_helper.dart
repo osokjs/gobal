@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:gobal/model/favorite_data.dart';
 import 'package:gobal/model/group_data.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -63,8 +64,8 @@ class DatabaseHelper {
             Name text NOT NULL,
             LATITUDE DOUBLE NOT NULL,
             LONGITUDE DOUBLE NOT NULL,
-            ACCURACY INTEGER NOT NULL,
-            TIMESTAMP INTEGER NOT NULL
+            ACCURACY DOUBLE NOT NULL,
+            UPDATED TEXT
                       ) ''');
     print('-- favorites table successfully created.');
 
@@ -73,7 +74,7 @@ class DatabaseHelper {
     CREATE TABLE $_routeCodeTable (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         Name text NOT NULL,
-      TIMESTAMP INTEGER NOT NULL
+      UPDATED TEXT
     ) ''');
     print('-- routeCode table successfully created.');
 
@@ -85,8 +86,8 @@ class DatabaseHelper {
             Name text NOT NULL,
             LATITUDE DOUBLE NOT NULL,
             LONGITUDE DOUBLE NOT NULL,
-            ACCURACY INTEGER NOT NULL,
-            PRIMARY KEY (R_ID, INDEX),
+            ACCURACY DOUBLE NOT NULL,
+            PRIMARY KEY (R_ID, INDEX)
           ) ''');
     print('-- routes table successfully created.');
 
@@ -111,6 +112,25 @@ class DatabaseHelper {
     print('insert: $_tableName, $result rows.');
     return result;
   }
+
+  Future<int> insertFavorite(FavoriteData fd) async {
+    int result = 0;
+    String _tableName = _favoritesTable;
+
+    try {
+      Database db = await DatabaseHelper.instance.database;
+      result = await db.rawInsert(
+          'INSERT INTO $_tableName (G_ID, NAME, LATITUDE, LONGITUDE, ACCURACY, UPDATED) VALUES (?, ?, ?, ?, ?, ?)',
+          [fd.gId, fd.name, fd.latitude, fd.longitude, fd.accuracy, fd.updated]);
+    } catch (e) {
+      print(e.toString());
+      throw e;
+    }
+    assert(result == 1);
+    print('insert: $_tableName, $result rows.');
+    return result;
+  }
+
 
   Future<List<GroupData>> getAllGroupCode() async {
     final String _tableName = _groupTable;
