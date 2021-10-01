@@ -41,7 +41,7 @@ Widget _buildTop() {
       child: GetBuilder<HomePageController>(
         init: HomePageController(),
       builder: (_) {
-        return Text('GPS 정확도: ${_.position.accuracy}');
+        return Text('GPS 정확도: ${_.position.accuracy.round()}');
       },
       ),
     );
@@ -55,38 +55,14 @@ Widget _buildTop() {
           ElevatedButton(
             child: Text('즐겨찾기'),
             onPressed: () => Get.toNamed('/favorite'),
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder( //모서리를 둥글게
-                  borderRadius: BorderRadius.circular(20)),
-              primary: Colors.blue,
-              onPrimary: Colors.white, //글자색
-              alignment: Alignment.centerLeft,
-              textStyle: const TextStyle(fontSize: 30),
-            ),
           ), // ElevatedButton
           ElevatedButton(
             child: Text('위치 추가'),
             onPressed: () => Get.toNamed('/add_favorite'),
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder( //모서리를 둥글게
-                  borderRadius: BorderRadius.circular(20)),
-              primary: Colors.blue,
-              onPrimary: Colors.white, //글자색
-              alignment: Alignment.centerLeft,
-              textStyle: const TextStyle(fontSize: 30),
-            ),
           ), // ElevatedButton
           ElevatedButton(
             child: Text('환경설정'),
             onPressed: () => Get.toNamed('/config'),
-            style: ElevatedButton.styleFrom(
-              shape: RoundedRectangleBorder( //모서리를 둥글게
-                  borderRadius: BorderRadius.circular(20)),
-              primary: Colors.blue,
-              onPrimary: Colors.white, //글자색
-              alignment: Alignment.centerLeft,
-              textStyle: const TextStyle(fontSize: 30),
-            ),
           ), // ElevatedButton
         ],
       ), // Column

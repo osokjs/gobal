@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gobal/view/add_favorites.dart';
+import 'package:gobal/view/manage_category.dart';
 
 import 'package:gobal/view/my_homepage.dart';
 import 'package:gobal/view/my_favorite.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/', page: () => MyHomePage()),
     GetPage(name: '/favorite', page: () => MyFavorite()),
     GetPage(name: '/add_favorite', page: () => AddFavorite()),
+    GetPage(name: '/add_favorite/manage_category', page: () => ManageCategory()),
     GetPage(name: '/config', page: () => MyConfig()),
       ],
     );
