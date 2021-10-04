@@ -33,8 +33,9 @@ final TextEditingController nameController = TextEditingController(); // 현재 
 
   @override
   void onInit() {
-    initPosition();
     getAllGroupCode();
+    initPosition();
+    getPosition();
     super.onInit();
   } // onInit
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:geolocator/geolocator.dart';
 
 class GpsInfo {
@@ -47,12 +49,12 @@ class GpsInfo {
   Future<Position> getMyCurrentPosition() async {
     try {
       return await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
+            desiredAccuracy: LocationAccuracy.best,
             timeLimit: Duration(seconds: 10),
           );
     } catch (e) {
-      print(e);
-      return Future.error('getCurrentPosition에서 에러 발생: $e');
+      log('getMyCurrentPosition: ${e.toString()}');
+      return Future.error('getCurrentPosition에서 에러 발생: ${e.toString()}');
     }
 
   } // getMyCurrentPosition

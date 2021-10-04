@@ -14,74 +14,94 @@ class ManageCategory extends StatefulWidget {
 class _ManageCategoryState extends State<ManageCategory> {
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final maxHeight = mq.size.height;
+    final maxWidth = mq.size.width;
+    final appBarHeight = AppBar().preferredSize.height;
+    final padding = mq.padding.top + mq.padding.bottom;
+    final insets = mq.viewInsets.top + mq.viewInsets.bottom;
+    final bodyHeight = maxHeight - appBarHeight - padding - insets;
+
+    // final displaySize = mq.size;
+    // final aspectRatio = displaySize.aspectRatio;
+    // final devicePixelRatio = mq.devicePixelRatio;
+    // final textScaleFactor = mq.textScaleFactor;
+    // final orientation = mq.orientation;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('카테고리 관리'),
       ),
-      body: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+        child: Container(
+          width: maxWidth,
+          height: bodyHeight,
+          alignment: Alignment.center,
           child: Column(
             children: <Widget>[
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: AddFavoriteController.to.groupController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: '카테고리 이름:',
-                        hintText: '카테고리 이름을 10자 이내로 입력하세요.',
-                      ),
-                    ), // TextFormField
-                  ), // Expanded
-                  const SizedBox(width: 10,),
-                  ElevatedButton(
-                    child: const Text('저장'),
-                    onPressed: () {
-                      String value = AddFavoriteController.to.groupController.text.trim();
+              Container(
+                height: bodyHeight * 0.3,
+                                width: maxWidth,
+                                padding: EdgeInsets.all(5.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: AddFavoriteController.to.groupController,
+                        keyboardType: TextInputType.text,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: '카테고리 이름:',
+                          hintText: '카테고리 이름을 10자 이내로 입력하세요.',
+                        ),
+                      ), // TextFormField
+                    ), // Expanded
+                    // const SizedBox(width: 10,),
+                    ElevatedButton(
+                      child: const Text('저장'),
+                      onPressed: () {
+                        String value = AddFavoriteController.to.groupController.text.trim();
 
-                      log('text value($value)');
-                      if(!_checkCategoryName(value)) return;
-                      AddFavoriteController.to.addGroupCode(value);
-                      AddFavoriteController.to.getAllGroupCode();
+                        log('group name($value)');
+                        if(!_checkCategoryName(value)) return;
+                        AddFavoriteController.to.addGroupCode(value);
+                        AddFavoriteController.to.getAllGroupCode();
 
-                      AddFavoriteController.to.groupController..clear();
-                    },
-                  ), // ElevatedButton
-                ],
-              ), // Row
-              SizedBox(height: 10,),
-              buildGroupList(context),
-              SizedBox(height: 1,),
+                        AddFavoriteController.to.groupController..clear();
+                      },
+                    ), // ElevatedButton
+                  ],
+                ), // Row
+              ), // Container
+              // SizedBox(height: 10,),
+              buildGroupList(context, bodyHeight, maxHeight),
+              // SizedBox(height: 1,),
             ],
           ), // Column
-        ), // GestureDetector
-      ), // SafeArea
-    );
+        ), // Container
+      ), // GestureDetector
+    );  // Scaffold
   } // build
 
-  Widget buildGroupList(BuildContext context) {
-    return Expanded(
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        // crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          GetBuilder<AddFavoriteController>(
-            builder: (_dx) => ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: _dx.groupList.length,
-              itemBuilder: (context, index) {
-                return Text(
-                  '${_dx.groupList[index].name}, idx = $index',
-                );
-              },
-            ), // ListView.builder
-          ), // GetBuilder
-        ],
-      ), // Column
-    ); // Expanded
+  Widget buildGroupList(BuildContext context, double bodyHeight, double maxWidth) {
+    return Container(
+      height: bodyHeight * 0.7,
+      width:maxWidth,
+      padding: EdgeInsets.all(5.0),
+      child: GetBuilder<AddFavoriteController>(
+        builder: (_dx) => ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: _dx.groupList.length,
+          itemBuilder: (context, index) {
+            return Text(
+              '${_dx.groupList[index].name}, idx = $index',
+            );
+          },
+        ), // ListView.builder
+      ), // GetBuilder
+    ); // Container
   } // buildGroupList
 
   bool _checkCategoryName(String value) {
