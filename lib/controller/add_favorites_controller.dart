@@ -25,7 +25,8 @@ class AddFavoriteController extends GetxController {
   );
 
   List<GroupCode> groupList = <GroupCode>[];
-  int selectedCategoryId = 1; // 1: '일반'
+  // int selectedCategoryId = 1; // 1: '일반'
+  GroupCode selectedCategory = GroupCode(id: 1, name: '일반');
 
 final TextEditingController nameController = TextEditingController(); // 현재 위치 이름(즐겨찾기)
   final TextEditingController groupController = TextEditingController(); // 카테고리 이름, 그룹명
@@ -62,15 +63,15 @@ final TextEditingController nameController = TextEditingController(); // 현재 
   void getAllGroupCode() async {
     try {
       groupList = await DatabaseHelper.instance.queryAllGroupCode();
-      selectedCategoryId = groupList[0].id;
+      selectedCategory = groupList[0];
       update();
     } catch (e) {
       log('getAllGroupCode: ${e.toString()}');
     }
   } // getAllGroupCode
 
-  void selectGroupCode(int value) {
-    selectedCategoryId = value;
+  void selectGroupCode(GroupCode value) {
+    selectedCategory = value;
     update();
   }
 
@@ -102,7 +103,7 @@ final TextEditingController nameController = TextEditingController(); // 현재 
       result = await DatabaseHelper.instance.insertFavorite(
           FavoriteData(
             id: 0, // autoincrement field
-            groupId: selectedCategoryId,
+            groupId: selectedCategory.id,
             name: name,
             latitude: position.latitude,
             longitude: position.longitude,
