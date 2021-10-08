@@ -59,5 +59,14 @@ class GpsInfo {
 
   } // getMyCurrentPosition
 
+  double getDistanceBetween(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+    return Geolocator.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude);
+  }
+
+  double getBearingBetween(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+    return Geolocator.bearingBetween(startLatitude, startLongitude, endLatitude, endLongitude);
+  }
+
+
 } // class GpsInfo
 

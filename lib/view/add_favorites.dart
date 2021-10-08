@@ -34,6 +34,21 @@ class AddFavorite extends StatelessWidget {
           icon: Icon(Icons.arrow_back, color: Colors.purple),
           autofocus: true,
         ) , // IconButton
+        actions:[
+          ElevatedButton(
+            child: const Text('카테고리 관리'),
+            onPressed: () => Get.toNamed('/add_favorite/manage_category'),
+          ), // ElevatedButton
+        ElevatedButton(
+          child: Text('저장'),
+          onPressed: () {
+            String value = addFavoriteController.nameController.text.trim();
+            if(!_checkFavoriteName(value)) return;
+            addFavoriteController.addFavoriteData(value);
+            Get.back();
+          },
+        ), // ElevatedButton
+        ],
       ), // AppBar
       body: Container(
           height: bodyHeight,
@@ -47,84 +62,58 @@ class AddFavorite extends StatelessWidget {
           child: Column(
             children: <Widget>[
 
-          //     Container( // 원래 윗 부분
-          // height: bodyHeight * 0.6,
-          //   width: maxWidth,
-          //   padding: EdgeInsets.all(8.0),
-                Expanded( // 원래 윗 부분
-                  flex: 3,
+              Container( // 원래 윗 부분
+                height: bodyHeight * 0.5,
+                width: maxWidth,
+                padding: EdgeInsets.all(8.0),
+                //       Expanded( // 원래 윗 부분
+                //         flex: 1,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    Expanded(
+                      child: TextField(
+                        controller: addFavoriteController.nameController,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: '위치 이름:',
+                          hintText: '위치 이름을 20자 이내로 입력하세요.',
+                        ),
+                      ), // TextField
+                    ), // Expanded
+
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        ElevatedButton(
-                          child: Text('저장'),
-                          onPressed: () {
-                            String value = addFavoriteController.nameController.text.trim();
-                            if(!_checkFavoriteName(value)) return;
-                            addFavoriteController.addFavoriteData(value);
-                            // Get.back();
-                          },
-                        ), // ElevatedButton
-                        ElevatedButton(
-                          child: Text('취소'),
-                          onPressed: () => Get.back(),
-                        ), // ElevatedButton
+                        const Text('카테고리'),
+                        GetBuilder<AddFavoriteController>(
+                            builder: (_ctrl) {
+                              return Container(
+                                width: 200,
+                                height: 40,
+                                child: DropdownButton<GroupCode>(
+                                  isExpanded: true,
+                                  // hint: Text('${_ctrl.selectedCategory.name}: 카테고리를 선택하세요.'),
+                                  // enableFeedback: true,
+                                  value: _ctrl.selectedCategory,
+                                  items: _ctrl.groupList
+                                      .map((data) {
+                                    return DropdownMenuItem(
+                                      value: data,
+                                      child: Text(data.name),
+                                    );
+                                  },
+                                  ).toList(),
+                                  onChanged: (val) {
+                                    _ctrl.selectGroupCode(val ?? _ctrl.groupList[0]); // 1: '일반'
+                                  },
+                                ), // DropDownButton
+                              );  // Container
+                            }
+                        ), // GetBuilder
                       ],
                     ), // Row
-
-              // SizedBox(height: 10,),
-
-              Expanded(
-                child: TextField(
-                  controller: addFavoriteController.nameController,
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: '위치 이름:',
-                    hintText: '위치 이름을 20자 이내로 입력하세요.',
-                  ),
-                ), // TextField
-              ), // Expanded
-
-              // SizedBox(height: 10,),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  const Text('카테고리'),
-                  GetBuilder<AddFavoriteController>(
-                    builder: (_ctrl) {
-                  return Container(
-                    width: 200,
-                    height: 40,
-                    child: DropdownButton<GroupCode>(
-                      isExpanded: true,
-                      // hint: Text('${_ctrl.selectedCategory.name}: 카테고리를 선택하세요.'),
-                    // enableFeedback: true,
-                    value: _ctrl.selectedCategory,
-                    items: _ctrl.groupList
-                        .map((data) {
-                    return DropdownMenuItem(
-                    value: data,
-                    child: Text(data.name),
-                    );
-                    },
-                    ).toList(),
-                    onChanged: (val) {
-                          _ctrl.selectGroupCode(val ?? _ctrl.groupList[0]); // 1: '일반'
-                    },
-                    ), // DropDownButton
-                  );  // Container
-            }
-          ), // GetBuilder
-                ],
-              ), // Row
-                    ElevatedButton(
-                      child: const Text('카테고리 관리'),
-                      onPressed: () => Get.toNamed('/add_favorite/manage_category'),
-                    ), // ElevatedButton
                   ],
                 ), // Column
               ), // Expanded
@@ -134,7 +123,7 @@ class AddFavorite extends StatelessWidget {
               //   width: maxWidth,
               //   padding: EdgeInsets.all(8.0),
               Expanded( // 원래 아랫 부분
-                flex: 2,
+                flex: 1,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [

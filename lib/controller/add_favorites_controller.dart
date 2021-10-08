@@ -63,6 +63,7 @@ final TextEditingController nameController = TextEditingController(); // 현재 
   void getAllGroupCode() async {
     try {
       groupList = await DatabaseHelper.instance.queryAllGroupCode();
+      groupList.insert(0, GroupCode(id: 0, name: '없음'));
       selectedCategory = groupList[0];
       update();
     } catch (e) {

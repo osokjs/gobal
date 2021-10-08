@@ -4,6 +4,7 @@
 import 'dart:developer';
 
 // import 'package:path_provider/path_provider.dart';
+import 'package:gobal/model/read_favorite_data.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:gobal/model/favorite_data.dart';
@@ -203,19 +204,23 @@ class DatabaseHelper {
     }
   } // queryAllGroupCode
 
-  Future<List<FavoriteData>> queryAllFavorite() async {
+  Future<List<ReadFavoriteData>> queryAllFavorite() async {
     const String _tableName = _favoritesTable;
     try {
       Database db = await DatabaseHelper.instance.database;
 
 // 모든 즐겨찾기를 얻기 위해 테이블에 질의합니다.
-      final List<Map<String, dynamic>> result = await db.query(_tableName);
+      // final List<Map<String, dynamic>> result = await db.query(_tableName);
+      final List<Map<String, dynamic>> result =
+      await db.rawQuery(
+          "Select a.*, ifnull(b.name, '없음') groupName From $_tableName A Left outer join groupCode B ON a.groupId = b.id"
+      );
 
 // List<Map<String, dynamic>를 List<FavoriteData>으로 변환합니다.
       // if(maps.isEmpty || maps.length < 1) return [];
-      // print(result);
+      // log(result);
 
-      List<FavoriteData> list = result.map((val) => FavoriteData.fromJson(val)).toList();
+      List<ReadFavoriteData> list = result.map((val) => ReadFavoriteData.fromJson(val)).toList();
       return list;
     } catch (e) {
       log('query favorites table error: $e');
