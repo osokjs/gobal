@@ -116,7 +116,8 @@ class MyFavoriteController extends GetxController {
   }
 
 String _makeInfoMsg(String name, String strDistance, String strBearing, String category) {
-  return '$name $strDistance $strBearing $category';
+    String strName = name.padRight(20).substring(0, 20);
+  return '$strName $strDistance $strBearing $category';
   }
 
 

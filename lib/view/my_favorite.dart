@@ -57,23 +57,18 @@ class _MyFavoriteState extends State<MyFavorite> {
           children: <Widget>[
             Container(
               height: bodyHeight * 0.2,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  const Text('현재 GPS 정확도:'),
-                  GetBuilder<MyFavoriteController>(
-                    builder: (_ctrl) {
-                      return Text('${_ctrl.position.accuracy.round()}');
-                    },
-                  ), // GetBuilder
-                ],
-              ), // Row
+              child: GetBuilder<MyFavoriteController>(
+                builder: (_ctrl) {
+                  return Text('GPS 정확도: ${_ctrl.position.accuracy.round()}');
+                },
+              ), // GetBuilder
             ), // Container
+
             Expanded(
               // flex: 4,
               child: GetBuilder<MyFavoriteController>(
                 builder: (_ctrl) {
-                  log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
+                  // log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
                   if (_ctrl.favoriteList.length < 1) {
                     return Text('등록된 데이터가 없습니다.');
                   } else {
