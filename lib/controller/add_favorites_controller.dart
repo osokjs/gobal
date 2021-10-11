@@ -11,8 +11,6 @@ import 'package:gobal/model/group_code.dart';
 
 class AddFavoriteController extends GetxController {
 
-  static AddFavoriteController get to => Get.find();
-
   Position position = Position(
       latitude: 0.0,
       longitude: 0.0,
@@ -26,14 +24,18 @@ class AddFavoriteController extends GetxController {
 
   List<GroupCode> groupList = <GroupCode>[];
   // int selectedCategoryId = 1; // 1: '일반'
-  GroupCode selectedCategory = GroupCode(id: 1, name: '일반');
+  GroupCode selectedCategory = GroupCode(id: 0, name: '없음');
 
 final TextEditingController nameController = TextEditingController(); // 현재 위치 이름(즐겨찾기)
-  final TextEditingController groupController = TextEditingController(); // 카테고리 이름, 그룹명
+  final TextEditingController groupController = TextEditingController(); // 등록할 카테고리 이름(그룹명)
+  final TextEditingController editGroupController = TextEditingController(); // 변경할 카테고리 이름(그룹명)
+
+  static AddFavoriteController get to => Get.find();
 
 
   @override
   void onInit() {
+    log('onInit starting...');
     getAllGroupCode();
     initPosition();
     getPosition();
@@ -44,6 +46,7 @@ final TextEditingController nameController = TextEditingController(); // 현재 
   void onClose() {
     nameController.dispose();
     groupController.dispose();
+    editGroupController.dispose();
     super.onClose();
   } // onClose
 
@@ -76,25 +79,38 @@ final TextEditingController nameController = TextEditingController(); // 현재 
     update();
   }
 
-  void addGroupCode(String name) async {
+  Future<int> addGroupCode(String name) async {
     int result = 0;
     try {
       result = await DatabaseHelper.instance.insertGroupCode(name);
       log('addGroupCode: result=$result');
     } catch (e) {
+      result = -1;
       log('addGroupCode: ${e.toString()}');
+      rethrow;
     }
+    return result;
   } // addGroupCode
 
+  void deleteGroupCode(int id) async {
+    int result = 0;
+    try {
+      result = await DatabaseHelper.instance.deleteById('groupCode', id);
+      log('delete GroupCode: result=$result');
+    } catch (e) {
+      log('delete GroupCode: ${e.toString()}');
+    }
+  } // deleteGroupCode
 
-//   int findCategoryId() {
-//     int id = -1;
-//     for(int i=0; i < groupList.length; i++) {
-//       if(groupList[i].name.compareTo(selectedCategory) == 0) return groupList[i].id;
-// //log('i=$i, name=$selectedCategory, gc.name=${groupList[i].name}, id=$id');
-//     }
-//     return id;
-//   }
+  void updateGroupCode(GroupCode data) async {
+    int result = 0;
+    try {
+      result = await DatabaseHelper.instance.updateGroupCode(data);
+      log('update GroupCode: result=$result');
+    } catch (e) {
+      log('update GroupCode: ${e.toString()}');
+    }
+  } // updateGroupCode
 
 
   void addFavoriteData(String name) async {

@@ -279,9 +279,16 @@ class DatabaseHelper {
   } // deleteFromTable
 
   Future<int> deleteRouteId(int routeId) async {
-    const String _tableName = _routesTable;
+    String _tableName = _routesTable;
     Database db = await DatabaseHelper.instance.database;
     int result = await db.rawDelete(
+        'DELETE FROM $_tableName WHERE routeId = ?',
+        [routeId]
+    );
+    log('deleteRouteId, table: $_tableName, result: $result');
+
+    _tableName = _routeCodeTable;
+    result = await db.rawDelete(
         'DELETE FROM $_tableName WHERE routeId = ?',
         [routeId]
     );

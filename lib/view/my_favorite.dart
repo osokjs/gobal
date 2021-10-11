@@ -39,7 +39,6 @@ class _MyFavoriteState extends State<MyFavorite> {
           onPressed: () => Navigator.of(context).pop(),
           tooltip: '뒤로가기',
           icon: Icon(Icons.arrow_back, color: Colors.white),
-          autofocus: true,
         ), // IconButton
         actions: [
         ElevatedButton(
@@ -59,7 +58,7 @@ class _MyFavoriteState extends State<MyFavorite> {
               height: bodyHeight * 0.2,
               child: GetBuilder<MyFavoriteController>(
                 builder: (_ctrl) {
-                  return Text('GPS 정확도: ${_ctrl.position.accuracy.round()}');
+                  return Text('GPS 정확도: ${_ctrl.position.accuracy.round()} M');
                 },
               ), // GetBuilder
             ), // Container
@@ -70,7 +69,7 @@ class _MyFavoriteState extends State<MyFavorite> {
                 builder: (_ctrl) {
                   // log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
                   if (_ctrl.favoriteList.length < 1) {
-                    return Text('등록된 데이터가 없습니다.');
+                    return Text('등록된 즐겨찾기가 없습니다.');
                   } else {
                     return ListView.builder(
                       itemCount: _ctrl.favoriteList.length,

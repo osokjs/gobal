@@ -153,6 +153,15 @@ String _makeInfoMsg(String name, String strDistance, String strBearing, String c
   //   }
   // } // addFavorite
 
+  ReadFavoriteData? findReadFavoriteDataById(int id) {
+    for(int i=0; i < favoriteList.length; i++) {
+      if(favoriteList[i].id == id)
+        return favoriteList[i];
+    }
+    return null;
+  } // findReadFavoriteDataById
+
+
 
 } // class
 

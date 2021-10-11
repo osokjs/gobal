@@ -30,9 +30,10 @@ class MyHomePage extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
-          _buildTop(bodyHeight * 0.4, maxWidth),
-        _buildMiddle(bodyHeight * 0.15, maxWidth),
+          _buildTop(bodyHeight * 0.3, maxWidth),
+        _buildMiddle(bodyHeight * 0.13, maxWidth),
         _buildBottom(bodyHeight * 0.45, maxWidth),
+            SizedBox(height: 1,),
           ],
         ),
       ),
@@ -64,7 +65,7 @@ Widget _buildTop(double height, double width) {
       child: GetBuilder<HomePageController>(
         init: HomePageController(),
       builder: (_) {
-        return Text('GPS 정확도: ${_.position.accuracy.round()}');
+        return Text('GPS 정확도: ${_.position.accuracy.round()} M');
       },
       ), // GetBuilder
     ); // Container
