@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gobal/controller/my_favorite_controller.dart';
+import 'package:gobal/model/favorite_data.dart';
+import 'package:gobal/model/read_favorite_data.dart';
 
 class MyFavorite extends StatefulWidget {
   const MyFavorite({Key? key}) : super(key: key);
@@ -41,10 +43,18 @@ class _MyFavoriteState extends State<MyFavorite> {
           icon: Icon(Icons.arrow_back, color: Colors.white),
         ), // IconButton
         actions: [
-        ElevatedButton(
-          child: const Text('편집'),
-          onPressed: () {},
-        ), // ElevatedButton
+    GetBuilder<MyFavoriteController>(
+    builder: (_ctrl) {
+              return IconButton(
+                tooltip: (MyFavoriteController.to.isEditMode) ? '편집 종료' : '편집',
+                icon: (MyFavoriteController.to.isEditMode) ? Icon(Icons.edit_off_outlined, color: Colors.yellow)
+                    : Icon(Icons.edit_location_alt, color: Colors.white),
+                onPressed: () {
+                  MyFavoriteController.to.changeEditMode();
+                },
+              ); // IconButton
+            }
+          ), // GetBuilder
     ],
       ), // AppBar
       body: Container(
@@ -67,14 +77,20 @@ class _MyFavoriteState extends State<MyFavorite> {
               // flex: 4,
               child: GetBuilder<MyFavoriteController>(
                 builder: (_ctrl) {
-                  // log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
+                  log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
                   if (_ctrl.favoriteList.length < 1) {
                     return Text('등록된 즐겨찾기가 없습니다.');
                   } else {
                     return ListView.builder(
                       itemCount: _ctrl.favoriteList.length,
                       itemBuilder: (context, index) {
-                        return Text(_ctrl.infoList[index].info);
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            Text(_ctrl.infoList[index].info),
+                            _editModeWidget(_ctrl.favoriteList[index]),
+                          ],
+                        );
                       },
                     ); // ListView.builder
                   } // else
@@ -84,6 +100,44 @@ class _MyFavoriteState extends State<MyFavorite> {
           ],
         ), // Column
       ), // Container
-    );
-  }
-}
+    ); // Scaffold
+  } // build
+
+
+  Widget _editModeWidget(ReadFavoriteData rfd) {
+    if (!MyFavoriteController.to.isEditMode) {
+return SizedBox.shrink();
+    } else {
+      return Row(
+        children: <Widget>[
+        IconButton(
+          tooltip: '수정',
+          icon: Icon(Icons.edit, color: Colors.black),
+          onPressed: () {
+            Get.toNamed('/add_favorite',
+                arguments: FavoriteData(
+                  id: rfd.id,
+                  groupId: rfd.groupId,
+                  name: rfd.name,
+                  latitude: rfd.latitude,
+                  longitude: rfd.longitude,
+                  accuracy: rfd.accuracy,
+                  updated: rfd.updated,
+            ));
+          },
+        ), // IconButton
+    IconButton(
+    tooltip: '삭제',
+    icon: Icon(Icons.delete, color: Colors.purple),
+    onPressed: () {
+      MyFavoriteController.to.deleteFavoriteData(rfd.id);
+      MyFavoriteController.to.getAllFavoriteData();
+    },
+    ), // IconButton
+    ],
+      ); // Row
+  } // else
+  } // _editModeWidget
+
+
+} // class

@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:gobal/common/common.dart';
 import 'package:gobal/database/database_helper.dart';
 import 'package:gobal/gps/gps_info.dart';
 import 'package:gobal/model/read_favorite_data.dart';
@@ -31,18 +32,14 @@ class MyFavoriteController extends GetxController {
   GroupCode selectedCategory = GroupCode(id: 1, name: '일반');
 
   Timer? _timer;
-  // final TextEditingController nameController = TextEditingController(); // 현재 위치 이름(즐겨찾기)
-  // final TextEditingController groupController = TextEditingController(); // 카테고리 이름, 그룹명
+  bool isEditMode = false; // true: 위치 수정, false: 위치 추가
 
 
   @override
   void onInit() {
     getAllFavoriteData();
-    initPosition();
     getPosition();
-    _timer = Timer.periodic(Duration(seconds: _TIMER_DURATION), (timer)  {
-      calculateDistanceAndBearing(timer);
-    });
+    myTimer(ActionKind.start);
     super.onInit();
   } // onInit
 
@@ -53,6 +50,23 @@ class MyFavoriteController extends GetxController {
     _timer?.cancel();
     super.onClose();
   } // onClose
+
+  void changeEditMode() {
+    isEditMode = !isEditMode;
+    log('editMode = $isEditMode');
+    (isEditMode) ? myTimer(ActionKind.finish) : myTimer(ActionKind.start);
+    update();
+  } // changeEditMode
+
+  void myTimer(ActionKind kind) {
+    if(kind == ActionKind.start) {
+      _timer = Timer.periodic(Duration(seconds: _TIMER_DURATION), (timer) {
+        calculateDistanceAndBearing(timer);
+      });
+    } else {
+      _timer?.cancel();
+    }
+      } // myTimer
 
   void calculateDistanceAndBearing(Timer timer) async {
     try {
@@ -82,10 +96,6 @@ class MyFavoriteController extends GetxController {
       log('timer(): ${DateTime.now().toString()}, ${e.toString()}');
     }
   } // calculateDistanceAndBearing
-
-  void initPosition()  async {
-    await GpsInfo.instance.determinePosition();
-  } // initPosition
 
   void getPosition() async {
     try {
@@ -132,26 +142,17 @@ String _makeInfoMsg(String name, String strDistance, String strBearing, String c
   } // getAllFavoriteData
 
 
-  // void addFavoriteData(String name) async {
-  //   int result = 0;
-  //
-  //   try {
-  //     result = await DatabaseHelper.instance.insertFavorite(
-  //         FavoriteData(
-  //           id: 0, // autoincrement field
-  //           groupId: selectedCategory.id,
-  //           name: name,
-  //           latitude: position.latitude,
-  //           longitude: position.longitude,
-  //           accuracy: position.accuracy,
-  //           updated:DateTime.now().toString(),
-  //         )
-  //     );
-  //     log('addFavorite: result=$result');
-  //   } catch (e) {
-  //     log('addFavorite: ${e.toString()}');
-  //   }
-  // } // addFavorite
+  void deleteFavoriteData(int id) async {
+    int result = 0;
+
+    try {
+      result = await DatabaseHelper.instance.deleteById(
+          DatabaseHelper.favoritesTable, id);
+      log('deleteFavorite: result = $result, id = $id');
+    } catch (e) {
+      log('deleteFavorite: ${e.toString()}');
+    }
+  } // deleteFavorite
 
   ReadFavoriteData? findReadFavoriteDataById(int id) {
     for(int i=0; i < favoriteList.length; i++) {

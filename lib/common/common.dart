@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+enum ActionKind {start, finish}
+
 class Common {
 
   static void infoDialog(BuildContext context, String msg, {String? title}) async {

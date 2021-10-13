@@ -17,10 +17,10 @@ class DatabaseHelper {
   static const _databaseVersion = 1;
 
   // table names
-  static const _groupTable = "groupCode";
-  static const _favoritesTable = "favorites";
-  static const _routeCodeTable = "routeCode";
-  static const _routesTable = "routes";
+  static const groupTable = "groupCode";
+  static const favoritesTable = "favorites";
+  static const routeCodeTable = "routeCode";
+  static const routesTable = "routes";
 
 
   DatabaseHelper._privateConstructor();
@@ -63,7 +63,7 @@ class DatabaseHelper {
     log('---- create table starting...');
     // groupCode table
     await db.execute('''
-          CREATE TABLE $_groupTable (
+          CREATE TABLE $groupTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name text NOT NULL UNIQUE
           ) ''');
@@ -72,7 +72,7 @@ class DatabaseHelper {
 
     // favorites table
     await db.execute('''
-          CREATE TABLE $_favoritesTable (
+          CREATE TABLE $favoritesTable (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             groupId INTEGER default 1, 
             name text NOT NULL UNIQUE,
@@ -85,7 +85,7 @@ class DatabaseHelper {
 
     // ROUTE CODE TABLE
     await db.execute('''
-    CREATE TABLE $_routeCodeTable (
+    CREATE TABLE $routeCodeTable (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name text NOT NULL UNIQUE,
       updated TEXT
@@ -94,7 +94,7 @@ class DatabaseHelper {
 
 // ROUTES TABLE
     await db.execute('''
-          CREATE TABLE $_routesTable (
+          CREATE TABLE $routesTable (
             routeId INTEGER NOT NULL,
             idx INTEGER NOT NULL,
             name text NOT NULL,
@@ -113,7 +113,7 @@ class DatabaseHelper {
   // Data insert methods
   Future<int> insertGroupCode(String name) async {
     int result = 0; // insert를 한 후 테이블의 레코드 수를 반환하는 것 같다.
-    const String _tableName =_groupTable;
+    const String _tableName =groupTable;
 
     try {
       Database db = await DatabaseHelper.instance.database;
@@ -130,7 +130,7 @@ class DatabaseHelper {
 
   Future<int> insertFavorite(FavoriteData fd) async {
     int result = 0; // insert를 한 후 생성된 id또는 레코드 개수를 반환하는 것 같다.
-    const String _tableName = _favoritesTable;
+    const String _tableName = favoritesTable;
 
     try {
       Database db = await DatabaseHelper.instance.database;
@@ -150,7 +150,7 @@ class DatabaseHelper {
 
   Future<int> insertRouteCode(String name, String updated) async {
     int result = 0; // insert를 한 후 테이블의 레코드 수를 반환하는 것 같다.
-    const String _tableName =_routeCodeTable;
+    const String _tableName =routeCodeTable;
 
     try {
       Database db = await DatabaseHelper.instance.database;
@@ -167,7 +167,7 @@ class DatabaseHelper {
 
   Future<int> insertRoute(RouteData rd) async {
     int result = 0; // insert를 한 후 생성된 id또는 레코드 개수를 반환하는 것 같다.
-    const String _tableName = _routesTable;
+    const String _tableName = routesTable;
 
     try {
       Database db = await DatabaseHelper.instance.database;
@@ -184,7 +184,7 @@ class DatabaseHelper {
 
   // read data
   Future<List<GroupCode>> queryAllGroupCode() async {
-    const String _tableName = _groupTable;
+    const String _tableName = groupTable;
     try {
       Database db = await DatabaseHelper.instance.database;
 
@@ -205,7 +205,7 @@ class DatabaseHelper {
   } // queryAllGroupCode
 
   Future<List<ReadFavoriteData>> queryAllFavorite() async {
-    const String _tableName = _favoritesTable;
+    const String _tableName = favoritesTable;
     try {
       Database db = await DatabaseHelper.instance.database;
 
@@ -229,7 +229,7 @@ class DatabaseHelper {
   } // queryAllFavorite
 
   Future<List<RouteData>> queryAllRoute(int routeId) async {
-    const String _tableName = _routesTable;
+    const String _tableName = routesTable;
     try {
       Database db = await DatabaseHelper.instance.database;
 
@@ -249,7 +249,7 @@ class DatabaseHelper {
   } // queryAllRoute
 
   Future<List<RouteCode>> queryAllRouteCode() async {
-    const String _tableName = _routeCodeTable;
+    const String _tableName = routeCodeTable;
     try {
       Database db = await DatabaseHelper.instance.database;
 
@@ -279,7 +279,7 @@ class DatabaseHelper {
   } // deleteFromTable
 
   Future<int> deleteRouteId(int routeId) async {
-    String _tableName = _routesTable;
+    String _tableName = routesTable;
     Database db = await DatabaseHelper.instance.database;
     int result = await db.rawDelete(
         'DELETE FROM $_tableName WHERE routeId = ?',
@@ -287,7 +287,7 @@ class DatabaseHelper {
     );
     log('deleteRouteId, table: $_tableName, result: $result');
 
-    _tableName = _routeCodeTable;
+    _tableName = routeCodeTable;
     result = await db.rawDelete(
         'DELETE FROM $_tableName WHERE routeId = ?',
         [routeId]
@@ -305,7 +305,7 @@ class DatabaseHelper {
 
   //Update
   Future<int>  updateGroupCode(GroupCode data) async {
-    const String _tableName = _groupTable;
+    const String _tableName = groupTable;
     Database db = await DatabaseHelper.instance.database;
     int result = await db.rawUpdate(
         'UPDATE $_tableName SET name = ? WHERE id = ?',
@@ -315,7 +315,7 @@ class DatabaseHelper {
   } // updateGroupCode
 
   Future<int>  updateFavorite(FavoriteData data) async {
-    const String _tableName = _favoritesTable;
+    const String _tableName = favoritesTable;
     Database db = await DatabaseHelper.instance.database;
     int result = await db.rawUpdate(
         'UPDATE $_tableName SET name = ? WHERE id = ?',

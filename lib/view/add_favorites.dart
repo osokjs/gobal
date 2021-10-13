@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gobal/common/common.dart';
 import 'package:gobal/controller/add_favorites_controller.dart';
+import 'package:gobal/model/favorite_data.dart';
 import 'package:gobal/model/group_code.dart';
 
 class AddFavorite extends StatefulWidget {
@@ -17,10 +18,18 @@ class _AddFavoriteState extends State<AddFavorite> {
   final AddFavoriteController addFavoriteController =
       Get.put(AddFavoriteController());
 
+  FavoriteData? _favoriteData;
+  bool _isEditMode = false;
+
   @override
   void initState() {
     super.initState();
-    log('-- initState starting...');
+    _favoriteData = (Get.arguments == null) ? null : Get.arguments as FavoriteData;
+    if(_favoriteData != null) {
+      _isEditMode = true;
+      AddFavoriteController.to.setEditModeValue(_favoriteData!);  // !는 null이 아님을 보장한다는 뜻임
+    }
+      log('-- initState starting...editMode=$_isEditMode, $_favoriteData');
   }
 
   @override
@@ -46,7 +55,7 @@ class _AddFavoriteState extends State<AddFavorite> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('즐겨찾기에 위치 추가'),
+        title: (_isEditMode) ? const Text('위치 수정') : const Text('위치 추가'),
         centerTitle: true,
         leading: IconButton(
           tooltip: '뒤로가기',
@@ -160,7 +169,7 @@ class _AddFavoriteState extends State<AddFavorite> {
                     builder: (_ctrl) => Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Text('GPS 정확도: ${_ctrl.position.accuracy.round()} M '),
+                        Text('GPS 정확도: ${_ctrl.position.accuracy.round()} m '),
                         Text('위도: ${_ctrl.position.latitude}'),
                         Text('경도: ${_ctrl.position.longitude}'),
                       ],

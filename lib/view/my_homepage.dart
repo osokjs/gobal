@@ -86,7 +86,7 @@ Widget _buildTop(double height, double width) {
           ), // ElevatedButton
           ElevatedButton(
             child: Text('위치 추가'),
-            onPressed: () => Get.toNamed('/add_favorite'),
+            onPressed: () => Get.toNamed('/add_favorite', arguments: null),
           ), // ElevatedButton
           ElevatedButton(
             child: Text('환경설정'),

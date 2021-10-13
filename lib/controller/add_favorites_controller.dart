@@ -35,10 +35,9 @@ final TextEditingController nameController = TextEditingController(); // 현재 
 
   @override
   void onInit() {
-    log('onInit starting...');
-    getAllGroupCode();
-    initPosition();
+    log('AddFavoriteController: onInit starting...');
     getPosition();
+    getAllGroupCode();
     super.onInit();
   } // onInit
 
@@ -50,9 +49,6 @@ final TextEditingController nameController = TextEditingController(); // 현재 
     super.onClose();
   } // onClose
 
-    void initPosition()  async {
-    await GpsInfo.instance.determinePosition();
-  } // initPosition
 
   void getPosition() async {
     try {
@@ -62,6 +58,21 @@ final TextEditingController nameController = TextEditingController(); // 현재 
       log('getPosition: ${e.toString()}');
     }
   } // getPosition
+
+  void setEditModeValue(FavoriteData fd) {
+    nameController.text = fd.name;
+    selectedCategory = findGroupCodeById(fd.groupId);
+    position = Position(
+      latitude: fd.latitude,
+      longitude: fd.longitude,
+      accuracy: fd.accuracy,
+      speed: 0.0,
+      speedAccuracy: 0.0,
+      altitude: 0.0,
+      heading: 0.0,
+      timestamp: DateTime.now(),
+    );
+  } // setEditModeValue
 
   void getAllGroupCode() async {
     try {
@@ -77,7 +88,7 @@ final TextEditingController nameController = TextEditingController(); // 현재 
   void selectGroupCode(GroupCode value) {
     selectedCategory = value;
     update();
-  }
+  } // selectGroupCode
 
   Future<int> addGroupCode(String name) async {
     int result = 0;
@@ -112,6 +123,13 @@ final TextEditingController nameController = TextEditingController(); // 현재 
     }
   } // updateGroupCode
 
+  GroupCode findGroupCodeById(int id) {
+    for(GroupCode gc in groupList) {
+      if(id == gc.id) return gc;
+    }
+    // 찾지 못한 경우
+    return GroupCode(id: 0, name: '없음');
+  } // findGroupCodeById
 
   void addFavoriteData(String name) async {
     int result = 0;
