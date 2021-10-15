@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gobal/controller/my_favorite_controller.dart';
-import 'package:gobal/model/favorite_data.dart';
+import 'package:gobal/model/favorite_info.dart.dart';
 import 'package:gobal/model/read_favorite_data.dart';
 
 class MyFavorite extends StatefulWidget {
@@ -75,27 +75,62 @@ class _MyFavoriteState extends State<MyFavorite> {
 
             Expanded(
               // flex: 4,
-              child: GetBuilder<MyFavoriteController>(
-                builder: (_ctrl) {
-                  log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
-                  if (_ctrl.favoriteList.length < 1) {
-                    return Text('등록된 즐겨찾기가 없습니다.');
-                  } else {
-                    return ListView.builder(
-                      itemCount: _ctrl.favoriteList.length,
-                      itemBuilder: (context, index) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Text(_ctrl.infoList[index].info),
-                            _editModeWidget(_ctrl.favoriteList[index]),
-                          ],
-                        );
-                      },
-                    ); // ListView.builder
-                  } // else
-                },
-              ), // GetBuilder
+              child: FutureBuilder<List<FavoriteInfo>>(
+                future: MyFavoriteController.to.calculateDistanceAndBearing(),
+                  builder: (BuildContext context, AsyncSnapshot<List<FavoriteInfo>> snapshot) {
+    if (snapshot.hasData == false) { // 아직 데이터가 오지 않았을 때
+      return Column(
+      children: <Widget>[
+      SizedBox(
+        child: CircularProgressIndicator(),
+        width: 60,
+        height: 60,
+      ),
+                    const Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Text('Awaiting result...'),
+                    ),
+                    ],
+      );
+    } else if (snapshot.hasError) { // 오류 발생 시
+      return Column(
+    children: <Widget>[
+    Icon(
+    Icons.error_outline,
+    color: Colors.red,
+    size: 60,
+    ),
+    Padding(
+    padding: const EdgeInsets.only(top: 16),
+    child: Text('Error: ${snapshot.error}'),
+    ),
+    ],
+    );
+    } else { // 데이터가 정상적으로 도착했을 때
+                  return GetBuilder<MyFavoriteController>(
+                    builder: (_ctrl) {
+                      log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
+                      if (_ctrl.favoriteList.length < 1) {
+                        return Text('등록된 즐겨찾기가 없습니다.');
+                      } else {
+                        return ListView.builder(
+                          itemCount: _ctrl.favoriteList.length,
+                          itemBuilder: (context, index) {
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: <Widget>[
+                                Text(_ctrl.infoList[index].info),
+                                _editModeWidget(_ctrl.favoriteList[index]),
+                              ],
+                            );
+                          },
+                        ); // ListView.builder
+                      } // else
+                    },
+                  ); // GetBuilder
+                }
+                }, // builder
+              ), // FutureBuilder
             ), // Expanded
           ],
         ), // Column
@@ -115,15 +150,7 @@ return SizedBox.shrink();
           icon: Icon(Icons.edit, color: Colors.black),
           onPressed: () {
             Get.toNamed('/add_favorite',
-                arguments: FavoriteData(
-                  id: rfd.id,
-                  groupId: rfd.groupId,
-                  name: rfd.name,
-                  latitude: rfd.latitude,
-                  longitude: rfd.longitude,
-                  accuracy: rfd.accuracy,
-                  updated: rfd.updated,
-            ));
+                arguments: rfd,);
           },
         ), // IconButton
     IconButton(

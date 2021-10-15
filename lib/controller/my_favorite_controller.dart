@@ -33,20 +33,18 @@ class MyFavoriteController extends GetxController {
 
   Timer? _timer;
   bool isEditMode = false; // true: 위치 수정, false: 위치 추가
-
+bool _isFirstExecute = true; // 최초 실행시
 
   @override
   void onInit() {
     getAllFavoriteData();
-    getPosition();
+    // getPosition();
     myTimer(ActionKind.start);
     super.onInit();
   } // onInit
 
   @override
   void onClose() {
-    // nameController.dispose();
-    // groupController.dispose();
     _timer?.cancel();
     super.onClose();
   } // onClose
@@ -61,14 +59,22 @@ class MyFavoriteController extends GetxController {
   void myTimer(ActionKind kind) {
     if(kind == ActionKind.start) {
       _timer = Timer.periodic(Duration(seconds: _TIMER_DURATION), (timer) {
-        calculateDistanceAndBearing(timer);
+        calculateDistanceAndBearing();
       });
     } else {
       _timer?.cancel();
     }
       } // myTimer
 
-  void calculateDistanceAndBearing(Timer timer) async {
+  Future<List<FavoriteInfo>> calculateDistanceAndBearing() async {
+
+    if (_isFirstExecute == true) {
+      _isFirstExecute = false;
+      await Future.delayed(Duration(milliseconds: 100,), () {
+            log('최초 한 번만 100밀리초 대기합니다.');
+          } );
+    }
+
     try {
       double distance, bearing;
       String strDistance, strBearing;
@@ -92,19 +98,21 @@ class MyFavoriteController extends GetxController {
       }
       infoList.sort((a, b) => a.distance.compareTo(b.distance));
       update();
+      return infoList;
     } catch (e) {
-      log('timer(): ${DateTime.now().toString()}, ${e.toString()}');
+      log('_calculate: ${e.toString()}');
+      return Future.error('calculateDistanceAndBearing: $e');
     }
   } // calculateDistanceAndBearing
 
-  void getPosition() async {
-    try {
-      position = await GpsInfo.instance.getMyCurrentPosition();
-      update();
-    } catch (e) {
-      log('getPosition: ${e.toString()}');
-    }
-  } // getPosition
+  // void getPosition() async {
+  //   try {
+  //     position = await GpsInfo.instance.getMyCurrentPosition();
+  //     update();
+  //   } catch (e) {
+  //     log('getPosition: ${e.toString()}');
+  //   }
+  // } // getPosition
 
   double _getDistance(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
       return GpsInfo.instance.getDistanceBetween(startLatitude, startLongitude, endLatitude, endLongitude);

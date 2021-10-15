@@ -7,6 +7,7 @@ import 'package:gobal/database/database_helper.dart';
 import 'package:gobal/gps/gps_info.dart';
 import 'package:gobal/model/favorite_data.dart';
 import 'package:gobal/model/group_code.dart';
+import 'package:gobal/model/read_favorite_data.dart';
 
 
 class AddFavoriteController extends GetxController {
@@ -59,13 +60,14 @@ final TextEditingController nameController = TextEditingController(); // 현재 
     }
   } // getPosition
 
-  void setEditModeValue(FavoriteData fd) {
-    nameController.text = fd.name;
-    selectedCategory = findGroupCodeById(fd.groupId);
+  void setEditModeValue(ReadFavoriteData rfd) {
+    nameController.text = rfd.name;
+    // selectedCategory = findGroupCodeById(rfd.groupId);
+    selectedCategory = GroupCode(id: rfd.groupId, name: rfd.groupName);
     position = Position(
-      latitude: fd.latitude,
-      longitude: fd.longitude,
-      accuracy: fd.accuracy,
+      latitude: rfd.latitude,
+      longitude: rfd.longitude,
+      accuracy: rfd.accuracy,
       speed: 0.0,
       speedAccuracy: 0.0,
       altitude: 0.0,

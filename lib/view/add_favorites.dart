@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gobal/common/common.dart';
 import 'package:gobal/controller/add_favorites_controller.dart';
-import 'package:gobal/model/favorite_data.dart';
 import 'package:gobal/model/group_code.dart';
+import 'package:gobal/model/read_favorite_data.dart';
 
 class AddFavorite extends StatefulWidget {
   const AddFavorite({Key? key}) : super(key: key);
@@ -18,24 +18,24 @@ class _AddFavoriteState extends State<AddFavorite> {
   final AddFavoriteController addFavoriteController =
       Get.put(AddFavoriteController());
 
-  FavoriteData? _favoriteData;
+  ReadFavoriteData? _readFavoriteData;
   bool _isEditMode = false;
 
   @override
   void initState() {
     super.initState();
-    _favoriteData = (Get.arguments == null) ? null : Get.arguments as FavoriteData;
-    if(_favoriteData != null) {
+    _readFavoriteData = (Get.arguments == null) ? null : Get.arguments as ReadFavoriteData;
+    if(_readFavoriteData != null) {
       _isEditMode = true;
-      AddFavoriteController.to.setEditModeValue(_favoriteData!);  // !는 null이 아님을 보장한다는 뜻임
+      AddFavoriteController.to.setEditModeValue(_readFavoriteData!);  // !는 null이 아님을 보장한다는 뜻임
     }
-      log('-- initState starting...editMode=$_isEditMode, $_favoriteData');
+      log('-- initState starting...editMode=$_isEditMode, $_readFavoriteData');
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
