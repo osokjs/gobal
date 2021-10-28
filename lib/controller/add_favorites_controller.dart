@@ -7,32 +7,21 @@ import 'package:gobal/database/database_helper.dart';
 import 'package:gobal/gps/gps_info.dart';
 import 'package:gobal/model/favorite_data.dart';
 import 'package:gobal/model/group_code.dart';
+import 'package:gobal/model/position_data.dart';
 import 'package:gobal/model/read_favorite_data.dart';
 
 
 class AddFavoriteController extends GetxController {
 
-  Position position = Position(
-      latitude: 0.0,
-      longitude: 0.0,
-      accuracy: 0.0,
-      speed: 0.0,
-    speedAccuracy: 0.0,
-    altitude: 0.0,
-    heading: 0.0,
-    timestamp: DateTime.now(),
-  );
+  static AddFavoriteController get to => Get.find();
 
-  List<GroupCode> groupList = <GroupCode>[];
-  // int selectedCategoryId = 1; // 1: '일반'
-  GroupCode selectedCategory = GroupCode(id: 0, name: '없음');
+  var position = PositionData().obs;
+  var groupList = <GroupCode>[].obs;
+  var selectedCategory = GroupCode(id: 0, name: '없음').obs;
 
 final TextEditingController nameController = TextEditingController(); // 현재 위치 이름(즐겨찾기)
   final TextEditingController groupController = TextEditingController(); // 등록할 카테고리 이름(그룹명)
   final TextEditingController editGroupController = TextEditingController(); // 변경할 카테고리 이름(그룹명)
-
-  static AddFavoriteController get to => Get.find();
-
 
   @override
   void onInit() {
@@ -53,43 +42,49 @@ final TextEditingController nameController = TextEditingController(); // 현재 
 
   void getPosition() async {
     try {
-      position = await GpsInfo.instance.getMyCurrentPosition();
-      update();
+      Position pos = await GpsInfo.instance.getMyCurrentPosition();
+      setPositionData(pos);
+      // update();
     } catch (e) {
       log('getPosition: ${e.toString()}');
     }
   } // getPosition
 
+  void setPositionData(Position pos) {
+    position(PositionData(
+        latitude: pos.latitude,
+    longitude: pos.longitude,
+    accuracy: pos.accuracy,
+    ));
+  } // setPositionData
+
   void setEditModeValue(ReadFavoriteData rfd) {
     nameController.text = rfd.name;
     // selectedCategory = findGroupCodeById(rfd.groupId);
-    selectedCategory = GroupCode(id: rfd.groupId, name: rfd.groupName);
-    position = Position(
+    // selectedCategory = GroupCode(id: rfd.groupId, name: rfd.groupName);
+    selectedCategory(GroupCode(id: rfd.groupId, name: rfd.groupName));
+    position(PositionData(
       latitude: rfd.latitude,
       longitude: rfd.longitude,
       accuracy: rfd.accuracy,
-      speed: 0.0,
-      speedAccuracy: 0.0,
-      altitude: 0.0,
-      heading: 0.0,
-      timestamp: DateTime.now(),
-    );
+    ));
   } // setEditModeValue
 
   void getAllGroupCode() async {
     try {
-      groupList = await DatabaseHelper.instance.queryAllGroupCode();
+      groupList.clear();
+      groupList.addAll(await DatabaseHelper.instance.queryAllGroupCode());
       groupList.insert(0, GroupCode(id: 0, name: '없음'));
-      selectedCategory = groupList[0];
-      update();
+      selectedCategory(groupList[0]);
+      // update();
     } catch (e) {
       log('getAllGroupCode: ${e.toString()}');
     }
   } // getAllGroupCode
 
   void selectGroupCode(GroupCode value) {
-    selectedCategory = value;
-    update();
+    selectedCategory(value);
+    // update();
   } // selectGroupCode
 
   Future<int> addGroupCode(String name) async {
@@ -140,11 +135,11 @@ final TextEditingController nameController = TextEditingController(); // 현재 
       result = await DatabaseHelper.instance.insertFavorite(
           FavoriteData(
             id: 0, // autoincrement field
-            groupId: selectedCategory.id,
+            groupId: selectedCategory.value.id,
             name: name,
-            latitude: position.latitude,
-            longitude: position.longitude,
-            accuracy: position.accuracy,
+            latitude: position.value.latitude,
+            longitude: position.value.longitude,
+            accuracy: position.value.accuracy,
             updated:DateTime.now().toString(),
           )
       );

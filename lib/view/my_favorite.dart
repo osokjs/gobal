@@ -2,8 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gobal/controller/my_favorite_controller.dart';
-import 'package:gobal/model/favorite_info.dart.dart';
+import 'package:gobal/controller/favorite_controller.dart';
 import 'package:gobal/model/read_favorite_data.dart';
 
 class MyFavorite extends StatefulWidget {
@@ -14,157 +13,120 @@ class MyFavorite extends StatefulWidget {
 }
 
 class _MyFavoriteState extends State<MyFavorite> {
-  final MyFavoriteController myFavoriteController =
-      Get.put(MyFavoriteController());
+
+  final FavoriteController myFavoriteController =
+  Get.put(FavoriteController());
+
 
   @override
-  Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final maxHeight = mq.size.height;
-    final maxWidth = mq.size.width;
-    final appBarHeight = AppBar().preferredSize.height;
-    final padding = mq.padding.top + mq.padding.bottom;
-    final insets = mq.viewInsets.top + mq.viewInsets.bottom;
-    final bodyHeight = maxHeight - appBarHeight - padding - insets;
+Widget build(BuildContext context) {
+  final mq = MediaQuery.of(context);
+  final maxHeight = mq.size.height;
+  final maxWidth = mq.size.width;
+  final appBarHeight = AppBar().preferredSize.height;
+  final padding = mq.padding.top + mq.padding.bottom;
+  final insets = mq.viewInsets.top + mq.viewInsets.bottom;
+  final bodyHeight = maxHeight - appBarHeight - padding - insets;
 
-    // final displaySize = mq.size;
-    // final aspectRatio = displaySize.aspectRatio;
-    // final devicePixelRatio = mq.devicePixelRatio;
-    // final textScaleFactor = mq.textScaleFactor;
-    // final orientation = mq.orientation;
+  // final displaySize = mq.size;
+  // final aspectRatio = displaySize.aspectRatio;
+  // final devicePixelRatio = mq.devicePixelRatio;
+  // final textScaleFactor = mq.textScaleFactor;
+  // final orientation = mq.orientation;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('즐겨찾기'),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: '뒤로가기',
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-        ), // IconButton
-        actions: [
-    GetBuilder<MyFavoriteController>(
-    builder: (_ctrl) {
-              return IconButton(
-                tooltip: (MyFavoriteController.to.isEditMode) ? '편집 종료' : '편집',
-                icon: (MyFavoriteController.to.isEditMode) ? Icon(Icons.edit_off_outlined, color: Colors.yellow)
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('즐겨찾기'),
+      centerTitle: true,
+      leading: IconButton(
+        onPressed: () => Navigator.of(context).pop(),
+        tooltip: '뒤로가기',
+        icon: Icon(Icons.arrow_back, color: Colors.white),
+      ), // IconButton
+      actions: [
+        Obx(() => IconButton(
+                tooltip: (FavoriteController.to.isEditMode.value) ? '편집 종료' : '편집',
+                icon: (FavoriteController.to.isEditMode.value) ? Icon(Icons.edit_off_outlined, color: Colors.yellow)
                     : Icon(Icons.edit_location_alt, color: Colors.white),
                 onPressed: () {
-                  MyFavoriteController.to.changeEditMode();
+                  FavoriteController.to.changeEditMode();
                 },
-              ); // IconButton
-            }
-          ), // GetBuilder
-    ],
-      ), // AppBar
-      body: Container(
-        height: bodyHeight,
-        width: maxWidth,
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Container(
-              height: bodyHeight * 0.2,
-              child: GetBuilder<MyFavoriteController>(
-                builder: (_ctrl) {
-                  return Text('GPS 정확도: ${_ctrl.position.accuracy.round()} M');
-                },
-              ), // GetBuilder
-            ), // Container
+              ), // IconButton
+        ), // Obx
+      ],
+    ), // AppBar
 
-            Expanded(
-              // flex: 4,
-              child: FutureBuilder<List<FavoriteInfo>>(
-                future: MyFavoriteController.to.calculateDistanceAndBearing(),
-                  builder: (BuildContext context, AsyncSnapshot<List<FavoriteInfo>> snapshot) {
-    if (snapshot.hasData == false) { // 아직 데이터가 오지 않았을 때
-      return Column(
-      children: <Widget>[
-      SizedBox(
-        child: CircularProgressIndicator(),
-        width: 60,
-        height: 60,
-      ),
-                    const Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Text('Awaiting result...'),
-                    ),
-                    ],
-      );
-    } else if (snapshot.hasError) { // 오류 발생 시
-      return Column(
-    children: <Widget>[
-    Icon(
-    Icons.error_outline,
-    color: Colors.red,
-    size: 60,
-    ),
-    Padding(
-    padding: const EdgeInsets.only(top: 16),
-    child: Text('Error: ${snapshot.error}'),
-    ),
-    ],
-    );
-    } else { // 데이터가 정상적으로 도착했을 때
-                  return GetBuilder<MyFavoriteController>(
-                    builder: (_ctrl) {
-                      log('GetBuildr: builder, length: ${_ctrl.favoriteList.length}');
-                      if (_ctrl.favoriteList.length < 1) {
+    body: Container(
+      height: bodyHeight,
+      width: maxWidth,
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Container(
+            height: bodyHeight * 0.2,
+            child: Obx(() => Text(
+                'GPS 정확도: ${FavoriteController.to.position.value.accuracy.round()} M'),
+            ), // Obx
+          ), // Container
+
+          Expanded(
+            // flex: 4,
+                  child: Obx(() {
+                      log('builder length: ${FavoriteController.to.favoriteList.length}');
+                      if (FavoriteController.to.favoriteList.length < 1) {
                         return Text('등록된 즐겨찾기가 없습니다.');
                       } else {
+                        log('length: ${FavoriteController.to.favoriteList.length}, ${FavoriteController.to.infoList.length}');
                         return ListView.builder(
-                          itemCount: _ctrl.favoriteList.length,
+                          itemCount: FavoriteController.to.favoriteList.length,
                           itemBuilder: (context, index) {
                             return Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: <Widget>[
-                                Text(_ctrl.infoList[index].info),
-                                _editModeWidget(_ctrl.favoriteList[index]),
+                                Text(FavoriteController.to.infoList[index].info),
+                                _editModeWidget(FavoriteController.to.favoriteList[index]),
                               ],
                             );
                           },
                         ); // ListView.builder
                       } // else
                     },
-                  ); // GetBuilder
-                }
-                }, // builder
-              ), // FutureBuilder
-            ), // Expanded
-          ],
-        ), // Column
-      ), // Container
-    ); // Scaffold
-  } // build
-
+                  ), // Obx
+          ), // Expanded
+        ],
+      ), // Column
+    ), // Container
+  ); // Scaffold
+} // build
 
   Widget _editModeWidget(ReadFavoriteData rfd) {
-    if (!MyFavoriteController.to.isEditMode) {
-return SizedBox.shrink();
+    if (!FavoriteController.to.isEditMode.value) {
+      return SizedBox.shrink();
     } else {
       return Row(
         children: <Widget>[
-        IconButton(
-          tooltip: '수정',
-          icon: Icon(Icons.edit, color: Colors.black),
-          onPressed: () {
-            Get.toNamed('/add_favorite',
+          IconButton(
+            tooltip: '수정',
+            icon: Icon(Icons.edit, color: Colors.black),
+            onPressed: () {
+              Get.toNamed('/add_favorite',
                 arguments: rfd,);
-          },
-        ), // IconButton
-    IconButton(
-    tooltip: '삭제',
-    icon: Icon(Icons.delete, color: Colors.purple),
-    onPressed: () {
-      MyFavoriteController.to.deleteFavoriteData(rfd.id);
-      MyFavoriteController.to.getAllFavoriteData();
-    },
-    ), // IconButton
-    ],
+            },
+          ), // IconButton
+          IconButton(
+            tooltip: '삭제',
+            icon: Icon(Icons.delete, color: Colors.purple),
+            onPressed: () {
+              FavoriteController.to.deleteFavoriteData(rfd.id);
+              FavoriteController.to.getAllFavoriteData();
+            },
+          ), // IconButton
+        ],
       ); // Row
-  } // else
+    } // else
   } // _editModeWidget
+
 
 
 } // class

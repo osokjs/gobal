@@ -6,33 +6,25 @@ import 'package:get/get.dart';
 import 'package:gobal/common/common.dart';
 import 'package:gobal/database/database_helper.dart';
 import 'package:gobal/gps/gps_info.dart';
+import 'package:gobal/model/position_data.dart';
 import 'package:gobal/model/read_favorite_data.dart';
 import 'package:gobal/model/favorite_info.dart.dart';
 import 'package:gobal/model/group_code.dart';
 
 
-class MyFavoriteController extends GetxController {
+class FavoriteController extends GetxController {
 
   static const _TIMER_DURATION = 5;
-  static MyFavoriteController get to => Get.find();
+  static FavoriteController get to => Get.find();
 
-  Position position = Position(
-    latitude: 0.0,
-    longitude: 0.0,
-    accuracy: 0.0,
-    speed: 0.0,
-    speedAccuracy: 0.0,
-    altitude: 0.0,
-    heading: 0.0,
-    timestamp: DateTime.now(),
-  );
+  var position = PositionData().obs;
 
-  List<ReadFavoriteData> favoriteList = <ReadFavoriteData>[];
-  List<FavoriteInfo> infoList = <FavoriteInfo>[]; // 화면에 표시할 데이터
-  GroupCode selectedCategory = GroupCode(id: 1, name: '일반');
+  var favoriteList = <ReadFavoriteData>[].obs;
+  var infoList = <FavoriteInfo>[].obs; // 화면에 표시할 데이터
+  var selectedCategory = GroupCode(id: 0, name: '없음').obs;
 
   Timer? _timer;
-  bool isEditMode = false; // true: 위치 수정, false: 위치 추가
+  var isEditMode = false.obs; // true: 위치 수정, false: 위치 추가
 bool _isFirstExecute = true; // 최초 실행시
 
   @override
@@ -50,10 +42,10 @@ bool _isFirstExecute = true; // 최초 실행시
   } // onClose
 
   void changeEditMode() {
-    isEditMode = !isEditMode;
-    log('editMode = $isEditMode');
-    (isEditMode) ? myTimer(ActionKind.finish) : myTimer(ActionKind.start);
-    update();
+    isEditMode.value = !isEditMode.value;
+    log('changeEditMode: editMode = ${isEditMode.value}');
+    (isEditMode.value) ? myTimer(ActionKind.finish) : myTimer(ActionKind.start);
+    // update();
   } // changeEditMode
 
   void myTimer(ActionKind kind) {
@@ -70,7 +62,7 @@ bool _isFirstExecute = true; // 최초 실행시
 
     if (_isFirstExecute == true) {
       _isFirstExecute = false;
-      await Future.delayed(Duration(milliseconds: 100,), () {
+      await Future.delayed(Duration(milliseconds: 10,), () {
             log('최초 한 번만 100밀리초 대기합니다.');
           } );
     }
@@ -78,21 +70,30 @@ bool _isFirstExecute = true; // 최초 실행시
     try {
       double distance, bearing;
       String strDistance, strBearing;
+      String strInfo;
 
-      position = await GpsInfo.instance.getMyCurrentPosition();
+      Position pos = await GpsInfo.instance.getMyCurrentPosition();
+      log('정확도: ${pos.accuracy}, 위도: ${pos.latitude}, 경도: ${pos.longitude}, time: ${pos.timestamp?.toLocal().toString()}');
+      position(PositionData(
+        latitude: pos.latitude,
+        longitude: pos.longitude,
+        accuracy: pos.accuracy,
+      ));
       infoList.clear();
       for(int i = 0; i < favoriteList.length; i++ ) {
-        distance = _getDistance(position.latitude, position.longitude, favoriteList[i].latitude, favoriteList[i].longitude);
+        distance = _getDistance(position.value.latitude, position.value.longitude, favoriteList[i].latitude, favoriteList[i].longitude);
         strDistance = _distanceString(distance);
-        bearing = _getBearing(position.latitude, position.longitude, favoriteList[i].latitude, favoriteList[i].longitude);
+        bearing = _getBearing(position.value.latitude, position.value.longitude, favoriteList[i].latitude, favoriteList[i].longitude);
         strBearing = _bearingString(bearing);
+        strInfo = _makeInfoMsg(favoriteList[i].name, strDistance, strBearing, favoriteList[i].groupName);
+        // log('strInfo: $strInfo');
         infoList.add(
           FavoriteInfo(
             id: favoriteList[i].id,
             name: favoriteList[i].name,
             distance: distance,
             category: favoriteList[i].groupName,
-            info: _makeInfoMsg(favoriteList[i].name, strDistance, strBearing, favoriteList[i].groupName),
+            info: strInfo,
           ),
         );
       }
@@ -119,8 +120,8 @@ bool _isFirstExecute = true; // 최초 실행시
       }
 
       String _distanceString(double distance) {
-        String str = (distance <= 1000) ? '${distance.round()} M '
-            :'${(distance/1000.0).round()} KM';
+        String str = (distance <= 1000) ? '${distance.round()} m '
+            :'${(distance/1000.0).round()} km';
         return str.padLeft(8).substring(0, 8);
               }
 
@@ -129,8 +130,8 @@ bool _isFirstExecute = true; // 최초 실행시
   }
 
   String _bearingString(double bearing) {
-    String str = '${bearing.round()}도';
-    return str.padLeft(5).substring(0, 5);
+    String str = '${bearing.round()} 도';
+    return str.padLeft(7).substring(0, 7);
   }
 
 String _makeInfoMsg(String name, String strDistance, String strBearing, String category) {
@@ -141,9 +142,11 @@ String _makeInfoMsg(String name, String strDistance, String strBearing, String c
 
   void getAllFavoriteData() async {
     try {
-      favoriteList = await DatabaseHelper.instance.queryAllFavorite();
+      favoriteList.clear();
+      favoriteList.addAll(await DatabaseHelper.instance.queryAllFavorite());
+      // for(var item in favoriteList) log('favorite: ${item.toString()}');
       // selectedCategory = groupList[0];
-      update();
+      // update();
     } catch (e) {
       log('getAllFavoriteData: ${e.toString()}');
     }

@@ -15,7 +15,7 @@ class AddFavorite extends StatefulWidget {
 }
 
 class _AddFavoriteState extends State<AddFavorite> {
-  final AddFavoriteController addFavoriteController =
+  final AddFavoriteController _addFavoriteController =
       Get.put(AddFavoriteController());
 
   ReadFavoriteData? _readFavoriteData;
@@ -64,17 +64,12 @@ class _AddFavoriteState extends State<AddFavorite> {
         ), // IconButton
         actions: [
           IconButton(
-            tooltip: '카테고리 관리',
-            icon: Icon(Icons.category, color: Colors.white),
-            onPressed: () => Get.toNamed('/add_favorite/manage_category'),
-          ), // IconButton
-          IconButton(
             tooltip: '저장',
             icon: Icon(Icons.save, color: Colors.white),
             onPressed: () {
-              String value = addFavoriteController.nameController.text.trim();
+              String value = _addFavoriteController.nameController.text.trim();
               if (!_checkFavoriteName(value)) return;
-              addFavoriteController.addFavoriteData(value);
+              _addFavoriteController.addFavoriteData(value);
               Get.back();
             },
           ), // IconButton
@@ -99,7 +94,7 @@ class _AddFavoriteState extends State<AddFavorite> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
-                      controller: addFavoriteController.nameController,
+                      controller: _addFavoriteController.nameController,
                       keyboardType: TextInputType.text,
                       maxLength: 20,
                       autofocus: true,
@@ -116,17 +111,13 @@ class _AddFavoriteState extends State<AddFavorite> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       const Text('카테고리:'),
-                      GetBuilder<AddFavoriteController>(builder: (_ctrl) {
-                        // return Container(
-                        //   width: 200,
-                        //   height: 40,
-                        return Expanded(
+                      Obx(() => Expanded(
                           child: DropdownButton<GroupCode>(
                             isExpanded: true,
                             // hint: Text('${_ctrl.selectedCategory.name}: 카테고리를 선택하세요.'),
                             enableFeedback: true,
-                            value: _ctrl.selectedCategory,
-                            items: _ctrl.groupList.map(
+                            value: _addFavoriteController.selectedCategory.value,
+                            items: _addFavoriteController.groupList.map(
                               (data) {
                                 return DropdownMenuItem(
                                   value: data,
@@ -135,17 +126,22 @@ class _AddFavoriteState extends State<AddFavorite> {
                               },
                             ).toList(),
                             onChanged: (val) {
-                              _ctrl.selectGroupCode(val ?? _ctrl.groupList[0]); // 0: '없음'
+                              _addFavoriteController.selectGroupCode(val ?? _addFavoriteController.groupList[0]); // 0: '없음'
                               Common.unfocus(context);
                             },
                           ), // DropDownButton
-                        ); // Container
-                      }), // GetBuilder
+                        ), // Expanded
+                        ), // Obx
+                      IconButton(
+                        tooltip: '카테고리 관리',
+                        icon: Icon(Icons.category, color: Colors.white),
+                        onPressed: () => Get.toNamed('/add_favorite/manage_category'),
+                      ), // IconButton
                     ],
                   ), // Row
                 ],
               ), // Column
-            ), // Expanded
+            ), // Container
 
             // Container( // 원래 아랫 부분
             //   height: bodyHeight * 0.4,
@@ -154,29 +150,23 @@ class _AddFavoriteState extends State<AddFavorite> {
             Expanded(
               // 원래 아랫 부분
               // flex: 1,
-              child: Column(
+              child: Obx(() => Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
+                children: <Widget>[
                   ElevatedButton(
                     child: const Text('GPS 정보 재요청'),
                     onPressed: () {
-                      addFavoriteController.getPosition();
+                      _addFavoriteController.getPosition();
                       Common.unfocus(context);
                     },
                   ), // ElevatedButton
 
-                  GetBuilder<AddFavoriteController>(
-                    builder: (_ctrl) => Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text('GPS 정확도: ${_ctrl.position.accuracy.round()} m '),
-                        Text('위도: ${_ctrl.position.latitude}'),
-                        Text('경도: ${_ctrl.position.longitude}'),
-                      ],
-                    ), // Column
-                  ), // GetBuilder
+                        Text('GPS 정확도: ${_addFavoriteController.position.value.accuracy.round()} m '),
+                        Text('위도: ${_addFavoriteController.position.value.latitude}'),
+                        Text('경도: ${_addFavoriteController.position.value.longitude}'),
                 ],
               ), // Column
+            ), // Obx
             ), // Expanded
           ],
         ), // Column
